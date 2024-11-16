@@ -1,0 +1,269 @@
+#problem-1:-
+def solve_n_queens(n):
+    def is_safe(board, row, col):
+        for i in range(row):
+            if board[i] == col or abs(board[i] - col) == row - i:
+                return False
+        return True
+
+    def solve(row, board):
+        if row == n:
+            solutions.append(board[:])
+            return
+        for col in range(n):
+            if is_safe(board, row, col):
+                board[row] = col
+                solve(row + 1, board)
+
+    solutions = []
+    solve(0, [-1] * n)
+    return solutions
+
+def print_board(n, solution):
+    board = [["."] * n for _ in range(n)]
+    for row, col in enumerate(solution):
+        board[row][col] = "Q"
+    return "\n".join(["".join(row) for row in board])
+
+n = 4
+solutions = solve_n_queens(n)
+print(f"Number of solutions for N={n}: {len(solutions)}\n")
+for i, solution in enumerate(solutions, 1):
+    print(f"Solution {i}:\n{print_board(n, solution)}\n")
+Output for N=4:
+Number of solutions for N=4: 2
+
+Solution 1:
+.Q..
+...Q
+Q...
+..Q.
+
+Solution 2:
+..Q.
+Q...
+...Q
+.Q..
+#problem-2:-
+def solve_n_queens_rectangular(n, rows, cols):
+    def is_safe(board, row, col):
+        for i in range(row):
+            if board[i] == col or abs(board[i] - col) == row - i:
+                return False
+        return True
+
+    def solve(row, board):
+        if row == n:
+            solutions.append(board[:])
+            return
+        for col in range(cols):
+            if is_safe(board, row, col):
+                board[row] = col
+                solve(row + 1, board)
+
+    solutions = []
+    solve(0, [-1] * rows)
+    return solutions
+
+n, rows, cols = 8, 8, 10
+solutions = solve_n_queens_rectangular(n, rows, cols)
+print(f"Solution for {rows}x{cols} board:\n{solutions[0]}")
+Output: 
+Explanation: Each 'Q' represents a queen, and '.' represents an empty space. 
+#problem-3:-
+def solve_sudoku(board):
+    def is_valid(num, row, col):
+        for i in range(9):
+            if board[row][i] == num or board[i][col] == num or board[row // 3 * 3 + i // 3][col // 3 * 3 + i % 3] == num:
+                return False
+        return True
+
+    def solve():
+        for row in range(9):
+            for col in range(9):
+                if board[row][col] == ".":
+                    for num in map(str, range(1, 10)):
+                        if is_valid(num, row, col):
+                            board[row][col] = num
+                            if solve():
+                                return True
+                            board[row][col] = "."
+                    return False
+        return True
+
+    solve()
+    return board
+
+board = [
+    ["5","3",".",".","7",".",".",".","."],
+    ["6",".",".","1","9","5",".",".","."],
+    [".","9","8",".",".",".",".","6","."],
+    ["8",".",".",".","6",".",".",".","3"],
+    ["4",".",".","8",".","3",".",".","1"],
+    ["7",".",".",".","2",".",".",".","6"],
+    [".","6",".",".",".",".","2","8","."],
+    [".",".",".","4","1","9",".",".","5"],
+    [".",".",".",".","8",".",".","7","9"]
+]
+
+solution = solve_sudoku(board)
+print("Sudoku solution:")
+for row in solution:
+    print(row)
+Output:
+Sudoku solution:
+['5', '3', '4', '6', '7', '8', '9', '1', '2']
+['6', '7', '2', '1', '9', '5', '3', '4', '8']
+['1', '9', '8', '3', '4', '2', '5', '6', '7']
+['8', '5', '9', '7', '6', '1', '4', '2', '3']
+['4', '2', '6', '8', '5', '3', '7', '9', '1']
+['7', '1', '3', '9', '2', '4', '8', '5', '6']
+['9', '6', '1', '5', '3', '7', '2', '8', '4']
+['2', '8', '7', '4', '1', '9', '6', '3', '5']
+['3', '4', '5', '2', '8', '6', '1', '7', '9']
+#problem-4:-
+def find_target_sum_ways(nums, target):
+    total = sum(nums)
+    if (total - target) % 2 != 0 or total < target:
+        return 0
+
+    # Subset sum equivalent problem
+    subset_sum = (total - target) // 2
+
+    dp = [0] * (subset_sum + 1)
+    dp[0] = 1  # There's one way to make 0 (choose no elements)
+
+    for num in nums:
+        for j in range(subset_sum, num - 1, -1):
+            dp[j] += dp[j - num]
+
+    return dp[subset_sum]
+
+# Example 1
+nums = [1, 1, 1, 1, 1]
+target = 3
+result = find_target_sum_ways(nums, target)
+print(f"Number of ways to achieve target {target}: {result}")
+Output:
+Number of ways to achieve target 3: 5
+#problem-5:-
+
+def sum_of_subarray_mins(arr):
+    MOD = 10**9 + 7
+    stack = []
+    prev_less = [0] * len(arr)
+    next_less = [0] * len(arr)
+
+    for i in range(len(arr)):
+        while stack and arr[stack[-1]] > arr[i]:
+            stack.pop()
+        prev_less[i] = i - stack[-1] if stack else i + 1
+        stack.append(i)
+
+    stack = []
+    for i in range(len(arr) - 1, -1, -1):
+        while stack and arr[stack[-1]] >= arr[i]:
+            stack.pop()
+        next_less[i] = stack[-1] - i if stack else len(arr) - i
+        stack.append(i)
+
+    return sum((arr[i] * prev_less[i] * next_less[i]) % MOD for i in range(len(arr))) % MOD
+
+# Example 1
+arr = [3, 1, 2, 4]
+result = sum_of_subarray_mins(arr)
+print(f"Sum of subarray minimums: {result}")
+Output:
+Sum of subarray minimums: 17
+#problem-6:-
+def combination_sum(candidates, target):
+    def backtrack(start, target, path):
+        if target == 0:
+            results.append(path[:])
+            return
+        for i in range(start, len(candidates)):
+            if candidates[i] > target:
+                continue
+            path.append(candidates[i])
+            backtrack(i, target - candidates[i], path)
+            path.pop()
+
+    results = []
+    candidates.sort()
+    backtrack(0, target, [])
+    return results
+
+# Example 1
+candidates = [2, 3, 6, 7]
+target = 7
+result = combination_sum(candidates, target)
+print(f"Combination sums for target {target}: {result}")
+Output:
+Combination sums for target 7: [[2, 2, 3], [7]]
+#problem-7:-
+def combination_sum2(candidates, target):
+    def backtrack(start, target, path):
+        if target == 0:
+            results.append(path[:])
+            return
+        for i in range(start, len(candidates)):
+            if i > start and candidates[i] == candidates[i - 1]:
+                continue
+            if candidates[i] > target:
+                break
+            path.append(candidates[i])
+            backtrack(i + 1, target - candidates[i], path)
+            path.pop()
+
+    results = []
+    candidates.sort()
+    backtrack(0, target, [])
+    return results
+
+# Example 1
+candidates = [10, 1, 2, 7, 6, 1, 5]
+target = 8
+result = combination_sum2(candidates, target)
+print(f"Combination sums for target {target}: {result}")
+Output:
+Combination sums for target 8: [[1, 1, 6], [1, 2, 5], [1, 7], [2, 6]]
+
+#problem-8:-
+from itertools import permutations
+
+def generate_permutations(nums):
+    return list(permutations(nums))
+
+# Example 1
+nums = [1, 2, 3]
+result = generate_permutations(nums)
+print(f"Permutations: {result}")
+Output:
+Permutations: [(1, 2, 3), (1, 3, 2), (2, 1, 3), (2, 3, 1), (3, 1, 2), (3, 2, 1)]
+#problem-9:-
+def permute_unique(nums):
+    def backtrack(path, used):
+        if len(path) == len(nums):
+            results.append(path[:])
+            return
+        for i in range(len(nums)):
+            if used[i] or (i > 0 and nums[i] == nums[i - 1] and not used[i - 1]):
+                continue
+            used[i] = True
+            path.append(nums[i])
+            backtrack(path, used)
+            path.pop()
+            used[i] = False
+
+    results = []
+    nums.sort()
+    backtrack([], [False] * len(nums))
+    return results
+
+# Example 1
+nums = [1, 1, 2]
+result = permute_unique(nums)
+print(f"Unique permutations: {result}")
+Output:
+Unique permutations: [[1, 1, 2], [1, 2, 1], [2, 1, 1]]
+
