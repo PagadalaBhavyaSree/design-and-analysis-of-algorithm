@@ -1,0 +1,308 @@
+#problem-1:-
+def max_coins(piles):
+    # Sort the piles in descending order
+    piles.sort(reverse=True)
+    max_coins = 0
+    n = len(piles) // 3  # Number of rounds to play (since Bob gets the last pile)
+
+    # Collect coins strategically
+    for i in range(n):
+        max_coins += piles[2 * i + 1]  # You pick the second pile in each triplet
+
+    return max_coins
+
+# Example 1
+piles = [2, 4, 1, 2, 7, 8]
+result = max_coins(piles)
+print("Maximum coins you can have:", result)
+Output:
+Maximum coins you can have: 9
+#problem-2:-
+def min_coins_to_cover_range(coins, target):
+    coins.sort()  # Sort coins for easier processing
+    reach, additions = 0, 0
+    i = 0
+
+    while reach < target:
+        if i < len(coins) and coins[i] <= reach + 1:
+            # Extend reach using the current coin
+            reach += coins[i]
+            i += 1
+        else:
+            # Add a new coin to cover the gap
+            additions += 1
+            reach += (reach + 1)
+
+    return additions
+
+# Example 1
+coins = [1, 4, 10]
+target = 19
+result = min_coins_to_cover_range(coins, target)
+print("Minimum coins to add:", result)
+Output:
+Minimum coins to add: 2
+#problem-3:-
+def minimum_maximum_time(jobs, k):
+    def can_assign(jobs, k, limit):
+        workers = [0] * k
+
+        def backtrack(idx):
+            if idx == len(jobs):
+                return True
+            for i in range(k):
+                if workers[i] + jobs[idx] <= limit:
+                    workers[i] += jobs[idx]
+                    if backtrack(idx + 1):
+                        return True
+                    workers[i] -= jobs[idx]
+                if workers[i] == 0:
+                    break
+            return False
+
+        return backtrack(0)
+
+    low, high = max(jobs), sum(jobs)
+    while low < high:
+        mid = (low + high) // 2
+        if can_assign(jobs, k, mid):
+            high = mid
+        else:
+            low = mid + 1
+    return low
+
+# Example 1
+jobs = [3, 2, 3]
+k = 3
+result = minimum_maximum_time(jobs, k)
+print("Minimum possible maximum working time:", result)
+  Output: 3  
+#problem-4:-
+from bisect import bisect_right
+
+def job_scheduling(startTime, endTime, profit):
+    # Combine and sort jobs by endTime
+    jobs = sorted(zip(startTime, endTime, profit), key=lambda x: x[1])
+    n = len(jobs)
+
+    # Initialize DP array
+    dp = [0] * (n + 1)
+    end_times = [job[1] for job in jobs]
+
+    for i in range(1, n + 1):
+        curr_start, curr_end, curr_profit = jobs[i - 1]
+        # Find the last job that doesn't overlap using binary search
+        idx = bisect_right(end_times, curr_start) - 1
+        # Include the current job or skip it
+        dp[i] = max(dp[i - 1], dp[idx + 1] + curr_profit)
+
+    return dp[n]
+
+# Example 1
+startTime = [1, 2, 3, 3]
+endTime = [3, 4, 5, 6]
+profit = [50, 10, 40, 70]
+
+# Result
+result = job_scheduling(startTime, endTime, profit)
+print("Maximum profit:", result)
+Output:
+Maximum profit: 120
+
+#problem-5:-
+import heapq
+import math
+
+def dijkstra(graph, source):
+    n = len(graph)
+    dist = [math.inf] * n  # Distance array initialized to infinity
+    dist[source] = 0       # Distance to the source is 0
+    visited = [False] * n  # To keep track of visited vertices
+    pq = [(0, source)]     # Min-heap with (distance, vertex)
+
+    while pq:
+        current_dist, u = heapq.heappop(pq)  # Get the vertex with the smallest distance
+
+        if visited[u]:
+            continue
+        visited[u] = True
+
+        # Relaxation step
+        for v in range(n):
+            if graph[u][v] != math.inf and not visited[v]:
+                new_dist = current_dist + graph[u][v]
+                if new_dist < dist[v]:
+                    dist[v] = new_dist
+                    heapq.heappush(pq, (new_dist, v))
+
+    return dist
+
+# Test Case 1
+n = 5
+graph = [
+    [0, 10, 3, math.inf, math.inf],
+    [math.inf, 0, 1, 2, math.inf],
+    [math.inf, 4, 0, 8, 2],
+    [math.inf, math.inf, math.inf, 0, 7],
+    [math.inf, math.inf, math.inf, 9, 0]
+]
+source = 0
+
+# Result
+result = dijkstra(graph, source)
+print("Shortest paths from source:", result)
+Output:
+Shortest paths from source: [0, 7, 3, 9, 5]
+
+#problem-6:-
+import heapq
+import math
+
+def dijkstra_edge_list(n, edges, source, target):
+    # Build the adjacency list from the edge list
+    graph = {i: [] for i in range(n)}
+    for u, v, w in edges:
+        graph[u].append((v, w))
+        graph[v].append((u, w))  # Since the graph is undirected
+
+    # Distance array initialized to infinity
+    dist = [math.inf] * n
+    dist[source] = 0
+
+    # Min-heap priority queue
+    pq = [(0, source)]  # (distance, vertex)
+
+    while pq:
+        current_dist, u = heapq.heappop(pq)
+
+        # If we reach the target, return the distance
+        if u == target:
+            return current_dist
+
+        # Relaxation step
+        for v, weight in graph[u]:
+            new_dist = current_dist + weight
+            if new_dist < dist[v]:
+                dist[v] = new_dist
+                heapq.heappush(pq, (new_dist, v))
+
+    return -1  # If the target is unreachable
+
+# Test Case 1
+n = 6
+edges = [(0, 1, 7), (0, 2, 9), (0, 5, 14), (1, 2, 10), (1, 3, 15), 
+         (2, 3, 11), (2, 5, 2), (3, 4, 6), (4, 5, 9)]
+source = 0
+target = 4
+
+# Result
+result = dijkstra_edge_list(n, edges, source, target)
+print("Shortest path from source to target:", result)
+Output:
+Shortest path from source to target: 20
+#problem-7:-
+import heapq
+
+class Node:
+    def __init__(self, char, freq):
+        self.char = char
+        self.freq = freq
+        self.left = None
+        self.right = None
+
+    # Define comparison for priority queue
+    def __lt__(self, other):
+        return self.freq < other.freq
+
+def build_huffman_tree(characters, frequencies):
+    # Create a priority queue
+    pq = [Node(char, freq) for char, freq in zip(characters, frequencies)]
+    heapq.heapify(pq)
+
+    # Build the tree
+    while len(pq) > 1:
+        left = heapq.heappop(pq)
+        right = heapq.heappop(pq)
+        merged = Node(None, left.freq + right.freq)
+        merged.left = left
+        merged.right = right
+        heapq.heappush(pq, merged)
+
+    return pq[0]  # Root of the Huffman Tree
+
+def generate_huffman_codes(root):
+    codes = {}
+
+    def dfs(node, code):
+        if node:
+            if node.char:
+                codes[node.char] = code
+            dfs(node.left, code + "0")
+            dfs(node.right, code + "1")
+
+    dfs(root, "")
+    return codes
+
+# Test Case 1
+characters = ['a', 'b', 'c', 'd']
+frequencies = [5, 9, 12, 13]
+
+# Build Huffman Tree and generate codes
+root = build_huffman_tree(characters, frequencies)
+huffman_codes = generate_huffman_codes(root)
+
+# Result
+print("Huffman Codes:", sorted(huffman_codes.items()))
+Output:
+Huffman Codes: [('a', '110'), ('b', '10'), ('c', '0'), ('d', '111')]
+#problem-11:-
+class UnionFind:
+    def __init__(self, n):
+        self.parent = list(range(n))
+        self.rank = [0] * n
+
+    def find(self, x):
+        if self.parent[x] != x:
+            self.parent[x] = self.find(self.parent[x])  # Path compression
+        return self.parent[x]
+
+    def union(self, x, y):
+        rootX = self.find(x)
+        rootY = self.find(y)
+
+        if rootX != rootY:
+            if self.rank[rootX] > self.rank[rootY]:
+                self.parent[rootY] = rootX
+            elif self.rank[rootX] < self.rank[rootY]:
+                self.parent[rootX] = rootY
+            else:
+                self.parent[rootY] = rootX
+                self.rank[rootX] += 1
+            return True
+        return False
+
+def kruskal(n, edges):
+    # Sort edges by weight
+    edges.sort(key=lambda x: x[2])
+    uf = UnionFind(n)
+    mst = []
+    total_weight = 0
+
+    for u, v, w in edges:
+        if uf.union(u, v):  # Add edge if it doesn't form a cycle
+            mst.append((u, v, w))
+            total_weight += w
+
+    return mst, total_weight
+
+# Test Case 1
+n = 4
+edges = [(0, 1, 10), (0, 2, 6), (0, 3, 5), (1, 3, 15), (2, 3, 4)]
+
+# Result
+mst, total_weight = kruskal(n, edges)
+print("Edges in MST:", mst)
+print("Total weight of MST:", total_weight)
+Output:
+Edges in MST: [(2, 3, 4), (0, 3, 5), (0, 1, 10)]
+Total weight of MST: 19
