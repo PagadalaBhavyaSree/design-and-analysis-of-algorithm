@@ -1,0 +1,358 @@
+#problem-1:-
+import sys
+
+# Function to implement Floyd's Algorithm
+def floyd_warshall(graph):
+    n = len(graph)
+    dist = [[sys.maxsize] * n for _ in range(n)]
+    
+    # Initialize the distance matrix with graph values
+    for i in range(n):
+        for j in range(n):
+            if i == j:
+                dist[i][j] = 0
+            elif graph[i][j] != 0:
+                dist[i][j] = graph[i][j]
+    
+    # Floyd-Warshall Algorithm
+    for k in range(n):
+        for i in range(n):
+            for j in range(n):
+                dist[i][j] = min(dist[i][j], dist[i][k] + dist[k][j])
+    
+    return dist
+
+# Input graph as adjacency matrix
+graph = [
+    [0, 3, sys.maxsize, sys.maxsize],
+    [3, 0, 1, 4],
+    [sys.maxsize, 1, 0, 1],
+    [sys.maxsize, 4, 1, 0]
+]
+
+# Compute shortest paths
+shortest_paths = floyd_warshall(graph)
+
+# Display results
+print("Shortest Path Matrix:")
+for row in shortest_paths:
+    print(row)
+#problem-2:-
+      def update_link_failure(graph, failed_link):
+    u, v = failed_link
+    graph[u][v] = sys.maxsize
+    graph[v][u] = sys.maxsize
+
+    return floyd_warshall(graph)
+
+# Input graph
+graph_routers = [
+    [0, 1, 5, sys.maxsize, sys.maxsize, sys.maxsize],
+    [1, 0, 2, 1, sys.maxsize, sys.maxsize],
+    [5, 2, 0, sys.maxsize, 3, sys.maxsize],
+    [sys.maxsize, 1, sys.maxsize, 0, 1, 6],
+    [sys.maxsize, sys.maxsize, 3, 1, 0, 2],
+    [sys.maxsize, sys.maxsize, sys.maxsize, 6, 2, 0]
+]
+
+# Compute shortest paths before link failure
+shortest_paths_before = floyd_warshall(graph_routers)
+
+# Simulate link failure (Router B to Router D)
+failed_link = (1, 3)
+shortest_paths_after = update_link_failure(graph_routers, failed_link)
+
+print("Shortest Path Before Link Failure:")
+for row in shortest_paths_before:
+    print(row)
+
+print("\nShortest Path After Link Failure:")
+for row in shortest_paths_after:
+    print(row)
+#problem-3:-
+def floyd_with_threshold(n, edges, threshold):
+    # Initialize the distance matrix
+    dist = [[float('inf')] * n for _ in range(n)]
+    for i in range(n):
+        dist[i][i] = 0
+
+    for u, v, w in edges:
+        dist[u][v] = w
+        dist[v][u] = w  # Since the graph is undirected
+
+    # Floyd-Warshall Algorithm
+    for k in range(n):
+        for i in range(n):
+            for j in range(n):
+                dist[i][j] = min(dist[i][j], dist[i][k] + dist[k][j])
+
+    # Count reachable cities within threshold for each city
+    reachable_count = [sum(1 for j in range(n) if dist[i][j] <= threshold and i != j) for i in range(n)]
+    return reachable_count.index(max(reachable_count))
+
+# Input
+n = 4
+edges = [[0, 1, 3], [1, 2, 1], [1, 3, 4], [2, 3, 1]]
+threshold = 4
+
+# Result
+result = floyd_with_threshold(n, edges, threshold)
+print("City with maximum reachable cities:", result)
+#problem-4:-
+def floyd_with_threshold(n, edges, threshold):
+    # Initialize the distance matrix
+    dist = [[float('inf')] * n for _ in range(n)]
+    for i in range(n):
+        dist[i][i] = 0
+
+    for u, v, w in edges:
+        dist[u][v] = w
+        dist[v][u] = w  # Since the graph is undirected
+
+    # Floyd-Warshall Algorithm
+    for k in range(n):
+        for i in range(n):
+            for j in range(n):
+                dist[i][j] = min(dist[i][j], dist[i][k] + dist[k][j])
+
+    # Count reachable cities within threshold for each city
+    reachable_count = [sum(1 for j in range(n) if dist[i][j] <= threshold and i != j) for i in range(n)]
+    return reachable_count.index(max(reachable_count))
+
+# Input
+n = 4
+edges = [[0, 1, 3], [1, 2, 1], [1, 3, 4], [2, 3, 1]]
+threshold = 4
+
+# Result
+result = floyd_with_threshold(n, edges, threshold)
+print("City with maximum reachable cities:", result)
+#problem-4:-
+  def optimal_bst(keys, freq):
+    n = len(keys)
+    cost = [[0] * n for _ in range(n)]
+    root = [[0] * n for _ in range(n)]
+
+    # Cost for a single key
+    for i in range(n):
+        cost[i][i] = freq[i]
+
+    # Chain length
+    for length in range(2, n + 1):
+        for i in range(n - length + 1):
+            j = i + length - 1
+            cost[i][j] = float('inf')
+
+            for r in range(i, j + 1):
+                left_cost = cost[i][r - 1] if r > i else 0
+                right_cost = cost[r + 1][j] if r < j else 0
+                total_freq = sum(freq[i:j + 1])
+
+                current_cost = left_cost + right_cost + total_freq
+                if current_cost < cost[i][j]:
+                    cost[i][j] = current_cost
+                    root[i][j] = r
+
+    return cost[0][n - 1], root
+
+# Input
+keys = ['A', 'B', 'C', 'D']
+freq = [0.1, 0.2, 0.4, 0.3]
+
+# Result
+total_cost, root_matrix = optimal_bst(keys, freq)
+print("Optimal BST Cost:", total_cost)
+print("Root Matrix:")
+for row in root_matrix:
+    print(row)
+#problem-5:-
+keys = [10, 12, 16, 21]
+freq = [4, 2, 6, 3]
+
+# Result
+total_cost, root_matrix = optimal_bst(keys, freq)
+print("Optimal BST Cost:", total_cost)
+print("Root Matrix:")
+for row in root_matrix:
+    print(row)
+#problem-6:-
+def cat_and_mouse(graph):
+    n = len(graph)
+    DRAW, MOUSE_WIN, CAT_WIN = 0, 1, 2
+
+    dp = [[[DRAW] * n for _ in range(n)] for _ in range(2 * n)]
+    for i in range(n):
+        dp[0][0][i] = MOUSE_WIN
+        dp[0][i][i] = CAT_WIN
+
+    def can_mouse_win(step, mouse, cat):
+        if step == 2 * n:
+            return DRAW
+        if dp[step][mouse][cat] != DRAW:
+            return dp[step][mouse][cat]
+        turn = step % 2
+        if turn == 0:  # Mouse's turn
+            result = CAT_WIN
+            for next_mouse in graph[mouse]:
+                if next_mouse == 0:
+                    result = MOUSE_WIN
+                    break
+                result = min(result, can_mouse_win(step + 1, next_mouse, cat))
+        else:  # Cat's turn
+            result = MOUSE_WIN
+            for next_cat in graph[cat]:
+                if next_cat == 0:
+                    continue
+                result = min(result, can_mouse_win(step + 1, mouse, next_cat))
+
+        dp[step][mouse][cat] = result
+        return result
+
+    return can_mouse_win(0, 1, 2)
+
+# Input
+graph = [[2, 5], [3], [0, 4, 5], [1, 4, 5], [2, 3], [0, 2, 3]]
+result = cat_and_mouse(graph)
+print("Result:", result)
+#problem-7:-
+import heapq
+
+def max_probability(n, edges, succProb, start, end):
+    graph = {i: [] for i in range(n)}
+    for i, (u, v) in enumerate(edges):
+        graph[u].append((v, succProb[i]))
+        graph[v].append((u, succProb[i]))
+
+    # Priority queue for Dijkstra-like approach
+    pq = [(-1, start)]  # Max heap with probability as -1 (highest priority)
+    probabilities = [0] * n
+    probabilities[start] = 1
+
+    while pq:
+        prob, node = heapq.heappop(pq)
+        prob = -prob
+        if node == end:
+            return prob
+        for neighbor, edge_prob in graph[node]:
+            new_prob = prob * edge_prob
+            if new_prob > probabilities[neighbor]:
+                probabilities[neighbor] = new_prob
+                heapq.heappush(pq, (-new_prob, neighbor))
+
+    return 0
+
+# Input
+n = 3
+edges = [[0, 1], [1, 2], [0, 2]]
+succProb = [0.5, 0.5, 0.2]
+start, end = 0, 2
+
+# Result
+result = max_probability(n, edges, succProb, start, end)
+print(f"Maximum probability of success: {result:.5f}")
+#problem-8:-
+import heapq
+
+def max_probability(n, edges, succProb, start, end):
+    graph = {i: [] for i in range(n)}
+    for i, (u, v) in enumerate(edges):
+        graph[u].append((v, succProb[i]))
+        graph[v].append((u, succProb[i]))
+
+    # Priority queue for Dijkstra-like approach
+    pq = [(-1, start)]  # Max heap with probability as -1 (highest priority)
+    probabilities = [0] * n
+    probabilities[start] = 1
+
+    while pq:
+        prob, node = heapq.heappop(pq)
+        prob = -prob
+        if node == end:
+            return prob
+        for neighbor, edge_prob in graph[node]:
+            new_prob = prob * edge_prob
+            if new_prob > probabilities[neighbor]:
+                probabilities[neighbor] = new_prob
+                heapq.heappush(pq, (-new_prob, neighbor))
+
+    return 0
+
+# Input
+n = 3
+edges = [[0, 1], [1, 2], [0, 2]]
+succProb = [0.5, 0.5, 0.2]
+start, end = 0, 2
+
+# Result
+result = max_probability(n, edges, succProb, start, end)
+print(f"Maximum probability of success: {result:.5f}")
+#problem-9:-
+from collections import Counter
+
+def count_good_pairs(nums):
+    count = Counter(nums)
+    return sum(val * (val - 1) // 2 for val in count.values())
+
+# Input
+nums = [1, 2, 3, 1, 1, 3]
+
+# Result
+result = count_good_pairs(nums)
+print("Number of good pairs:", result)
+#problem-10:-
+def city_with_smallest_neighbors(n, edges, threshold):
+    dist = [[float('inf')] * n for _ in range(n)]
+    for i in range(n):
+        dist[i][i] = 0
+
+    for u, v, w in edges:
+        dist[u][v] = w
+        dist[v][u] = w
+
+    for k in range(n):
+        for i in range(n):
+            for j in range(n):
+                dist[i][j] = min(dist[i][j], dist[i][k] + dist[k][j])
+
+    neighbors_count = [sum(1 for j in range(n) if dist[i][j] <= threshold and i != j) for i in range(n)]
+    min_count = min(neighbors_count)
+    return max(i for i in range(n) if neighbors_count[i] == min_count)
+
+# Input
+n = 4
+edges = [[0, 1, 3], [1, 2, 1], [1, 3, 4], [2, 3, 1]]
+threshold = 4
+
+# Result
+result = city_with_smallest_neighbors(n, edges, threshold)
+print("City with the smallest number of reachable neighbors:", result)
+#problem-11:-
+from collections import defaultdict
+import heapq
+
+def network_delay_time(times, n, k):
+    graph = defaultdict(list)
+    for u, v, w in times:
+        graph[u].append((v, w))
+
+    pq = [(0, k)]  # Min-heap with (time, node)
+    shortest = {}
+    
+    while pq:
+        time, node = heapq.heappop(pq)
+        if node in shortest:
+            continue
+        shortest[node] = time
+        for neighbor, t in graph[node]:
+            if neighbor not in shortest:
+                heapq.heappush(pq, (time + t, neighbor))
+
+    return max(shortest.values()) if len(shortest) == n else -1
+
+# Input
+times = [[2, 1, 1], [2, 3, 1], [3, 4, 1]]
+n, k = 4, 2
+
+# Result
+result = network_delay_time(times, n, k)
+print("Minimum time to reach all nodes:", result)
